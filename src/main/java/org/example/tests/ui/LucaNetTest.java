@@ -24,7 +24,7 @@ public class LucaNetTest extends UiTestFixtures {
     void acceptCookies() {
         homePage = new LucaNetHomePage(page);
         homePage.navigate();
-        homePage.acceptAllCookies();
+//        homePage.acceptAllCookies();
     }
 
     @Test

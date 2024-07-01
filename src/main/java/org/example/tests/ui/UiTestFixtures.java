@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static org.example.App.STATE;
+
 // Subclasses will inherit PER_CLASS behavior.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UiTestFixtures {
@@ -46,7 +48,8 @@ class UiTestFixtures {
     @BeforeEach
     void createContextAndPage() {
         context = browser.newContext(new Browser.NewContextOptions()
-                .setScreenSize(1920, 1080));
+                .setViewportSize(1920, 1080)
+                .setStorageStatePath(Paths.get(STATE)));
         context.tracing().start(new Tracing.StartOptions()
                 .setScreenshots(true)
                 .setSnapshots(true)

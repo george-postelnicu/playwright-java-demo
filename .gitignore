@@ -38,3 +38,4 @@ build/
 trace.zip
 screenshot.png
 .env
+playwright/.auth
