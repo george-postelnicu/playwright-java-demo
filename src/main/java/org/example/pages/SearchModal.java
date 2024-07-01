@@ -5,14 +5,14 @@ import com.microsoft.playwright.Page;
 
 public class SearchModal extends PageBase {
 
-    private final Locator text;
-    private final Locator search;
-    private final Locator close;
+    public final Locator text;
+    public final Locator search;
+    public final Locator close;
     public SearchModal(Page page) {
         super(page);
         text = page.locator("//*[@id='search-modal']//input");
         close = page.locator("//*[@id='search-modal']//button[contains(@class, 'close')]");
-        search = page.locator("//*[@id='search-modal']//button[contains(@class, 'btn btn-secondary')]");
+        search = page.locator("//*[@id='search-modal']//button[@type='submit']");
     }
 
     public SearchPage search(String toSearch) {

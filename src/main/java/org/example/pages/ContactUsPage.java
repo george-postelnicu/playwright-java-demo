@@ -8,8 +8,18 @@ import org.example.models.ContactUsForm;
 import java.util.Objects;
 
 public class ContactUsPage extends PageBase {
+    public final Locator formError;
+    public final Locator firstname;
+    public final Locator phone;
+    public final Locator fieldLabels;
+    public final Locator title;
     public ContactUsPage(Page page) {
         super(page);
+        this.formError = page.locator("//div[contains(@class, 'hs_error_rollup')]//label");
+        this.firstname = page.locator("//input[@name='firstname']");
+        this.phone = page.locator("//input[@name='phone']");
+        this.fieldLabels = page.locator("//label[contains(@class, 'hs-error-msg')]");
+        this.title = page.getByRole(AriaRole.HEADING);
     }
 
     public void init() {
@@ -17,7 +27,7 @@ public class ContactUsPage extends PageBase {
     }
 
     public String getH1() {
-        return page.getByRole(AriaRole.HEADING).textContent().trim();
+        return this.title.textContent().trim();
     }
 
     public void fill(ContactUsForm form) {
@@ -37,7 +47,7 @@ public class ContactUsPage extends PageBase {
             page.locator("//input[@name='jobtitle']").fill(form.jobTitle());
         }
         if (Objects.nonNull(form.phone())) {
-            page.locator("//input[@name='phone']").fill(form.phone());
+            this.phone.fill(form.phone());
         }
         if (Objects.nonNull(form.country())) {
             page.locator("//select[@name='country']").selectOption(form.country());
@@ -54,10 +64,17 @@ public class ContactUsPage extends PageBase {
         page.locator("//input[@value='Send Request']").click();
     }
 
-    public Locator getFormErrorLabel() {
-        return page.locator("//div[contains(@class, 'hs_error_rollup')]//label");
+    public String getFormError() {
+        formError.waitFor(elementToBeVisible());
+        return formError.textContent().trim();
     }
 
-//"//div[contains(@class, 'hs_error_rollup')]//label"
-// input value   Send Request
+    public String getPhoneClasses() {
+        return phone.getAttribute("class");
+    }
+
+    public int getErrorCount() {
+        return fieldLabels.count();
+    }
+
 }

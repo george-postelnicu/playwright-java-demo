@@ -9,49 +9,70 @@ import org.example.pages.SearchPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
+import java.util.regex.Pattern;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LucaNetTest extends UiTestFixtures {
 
     LucaNetHomePage homePage;
 
     @BeforeEach
-    public void acceptCookies() {
+    void acceptCookies() {
         homePage = new LucaNetHomePage(page);
         homePage.navigate();
         homePage.acceptAllCookies();
     }
 
     @Test
-    public void shouldSeeNavBar() {
+    void shouldSeeNavBar() {
         assertTrue(homePage.isTopNavVisible());
     }
 
     @Test
-    public void shouldNavigateToSearchPage() {
+    void shouldNavigateToSearchPage() {
         SearchPage searchPage = homePage.search("abc");
         searchPage.init();
         assertTrue(searchPage.isSearchResultsVisible());
     }
 
     @Test
-    public void shouldCloseSearchModal() {
+    void shouldCloseSearchModal() {
         SearchModal searchModal = homePage.openSearch();
         searchModal.close();
         assertTrue(searchModal.isModalHidden());
     }
 
     @Test
-    public void shouldFindResults() {
+    void shouldCloseSearchModalWithPlaywrightAssertions() {
+        SearchModal searchModal = homePage.openSearch();
+        searchModal.close();
+        assertThat(searchModal.close).isHidden();
+        assertThat(searchModal.text).isHidden();
+        assertThat(searchModal.search).isHidden();
+    }
+
+    @Test
+    void shouldFindResults() {
         SearchPage searchPage = homePage.search("IFRS");
         searchPage.init();
-        assertEquals("30 results", searchPage.getNumberOfResults());
+        assertEquals("38 results", searchPage.getNumberOfResults());
         assertEquals(10, searchPage.getDisplayedResults());
     }
 
     @Test
-    public void shouldNavigateViaNavToContactUsPage() {
+    void shouldFindResultsWithPlaywrightAssertions() {
+        SearchPage searchPage = homePage.search("IFRS");
+        assertThat(searchPage.self).isVisible();
+        assertThat(searchPage.results).hasText("38 results");
+        assertThat(searchPage.resultsPerPage).hasCount(10);
+    }
+
+    @Test
+    void shouldNavigateViaNavToContactUsPage() {
         homePage.navigate("About Us", "Contact Us");
         ContactUsPage contactUsPage = new ContactUsPage(page);
         contactUsPage.init();
@@ -59,19 +80,44 @@ public class LucaNetTest extends UiTestFixtures {
     }
 
     @Test
-    public void shouldFillFormWithMissingNumber() {
+    void shouldNavigateViaNavToContactUsPageWithPlaywrightAssertions() {
+        homePage.navigate("About Us", "Contact Us");
+        ContactUsPage contactUsPage = new ContactUsPage(page);
+        assertThat(contactUsPage.firstname).isVisible();
+        assertThat(contactUsPage.title).hasText("Contact us");
+    }
+
+    @Test
+    void shouldFillFormWithMissingNumber() {
         homePage.navigate("About Us", "Contact Us");
         ContactUsPage contactUsPage = new ContactUsPage(page);
         contactUsPage.init();
         contactUsPage.fill(createForm());
         contactUsPage.submit();
-        assertThat(contactUsPage.getFormErrorLabel()).hasText("Please complete all required fields.");
+        assertEquals( "Please complete all required fields.", contactUsPage.getFormError());
+        assertTrue(contactUsPage.getPhoneClasses().contains("invalid error"));
+        assertEquals(1, contactUsPage.getErrorCount());
+    }
+
+    @Test
+    void shouldFillFormWithMissingNumberAndPlaywrightAssertions() {
+        homePage.navigate("About Us", "Contact Us");
+        ContactUsPage contactUsPage = new ContactUsPage(page);
+        assertThat(contactUsPage.firstname).isVisible();
+        contactUsPage.fill(createForm());
+        contactUsPage.submit();
+        assertThat(contactUsPage.formError).hasText("Please complete all required fields.");
+        assertThat(contactUsPage.phone).hasClass(Pattern.compile("invalid error"));
+        assertThat(contactUsPage.fieldLabels).hasCount(1);
     }
 
     private ContactUsForm createForm() {
-        Faker faker = new Faker();
-        return new ContactUsForm(faker.name().firstName(), faker.name().lastName(), faker.company().name(),
-                faker.internet().emailAddress(), faker.company().profession(), null, faker.country().name(),
+        Faker faker = new Faker(Locale.of("de"));
+        String firstname = faker.name().firstName();
+        String lastname = faker.name().lastName();
+        String email = STR."\{firstname.toLowerCase()}.\{lastname.toLowerCase()}@abc.com";
+        return new ContactUsForm(firstname, lastname, faker.company().name(),
+                email, faker.company().profession(), null, faker.country().name(),
                 "Appointment request", "I would like a meeting ASAP!");
     }
 }
