@@ -39,3 +39,4 @@ trace.zip
 screenshot.png
 .env
 playwright/.auth
+.attach_pid*

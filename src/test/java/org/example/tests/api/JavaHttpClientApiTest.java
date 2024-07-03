@@ -1,8 +1,10 @@
 package org.example.tests.api;
 
 import org.example.models.language.LanguageResponseDto;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -11,6 +13,7 @@ import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
 
     private static final String LANGUAGE = "Indonesian";
@@ -25,7 +28,7 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
 
     @Test
     @Order(1)
-    void createLanguage() throws URISyntaxException, IOException, InterruptedException {
+    void shouldCreateLanguage() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = create(NEW_LANGUAGE_JSON);
         HttpResponse<String> send = send(httpRequest);
         LanguageResponseDto dto = transform(send);
@@ -36,7 +39,7 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
 
     @Test
     @Order(2)
-    void readLanguage() throws URISyntaxException, IOException, InterruptedException {
+    void shouldReadLanguage() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = read(id);
         HttpResponse<String> send = send(httpRequest);
         LanguageResponseDto dto = transform(send);
@@ -47,7 +50,7 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
 
     @Test
     @Order(3)
-    void updateLanguage() throws URISyntaxException, IOException, InterruptedException {
+    void shouldUpdateLanguage() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = update(NEW_LANGUAGE_JSON.replaceAll(LANGUAGE, LANGUAGE_UPDATE), id);
         HttpResponse<String> send = send(httpRequest);
         LanguageResponseDto dto = transform(send);
@@ -58,9 +61,17 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
 
     @Test
     @Order(4)
-    void deleteLanguage() throws URISyntaxException, IOException, InterruptedException {
+    void shouldDeleteLanguage() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = delete(id);
         HttpResponse<String> send = send(httpRequest);
         assertEquals(204, send.statusCode());
+    }
+
+    @Test
+    @Order(5)
+    void whenIdIsNotFound_shouldGet404() throws URISyntaxException, IOException, InterruptedException {
+        HttpResponse<String> send = send(read(id));
+        System.out.println(send.body());
+        assertEquals(404, send.statusCode());
     }
 }

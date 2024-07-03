@@ -6,25 +6,25 @@ import org.example.pages.ContactUsPage;
 import org.example.pages.LucaNetHomePage;
 import org.example.pages.SearchModal;
 import org.example.pages.SearchPage;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LucaNetTest extends UiTestFixtures {
 
     LucaNetHomePage homePage;
 
-    @BeforeEach
+    @BeforeAll
     void acceptCookies() {
         homePage = new LucaNetHomePage(page);
         homePage.navigate();
-//        homePage.acceptAllCookies();
+        homePage.acceptAllCookies();
     }
 
     @Test
@@ -94,7 +94,7 @@ public class LucaNetTest extends UiTestFixtures {
         contactUsPage.init();
         contactUsPage.fill(createForm());
         contactUsPage.submit();
-        assertEquals( "Please complete all required fields.", contactUsPage.getFormError());
+        assertEquals("Please complete all required fields.", contactUsPage.getFormError());
         assertTrue(contactUsPage.getPhoneClasses().contains("invalid error"));
         assertEquals(1, contactUsPage.getErrorCount());
     }

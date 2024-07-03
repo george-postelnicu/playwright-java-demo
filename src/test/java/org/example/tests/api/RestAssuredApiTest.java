@@ -30,7 +30,6 @@ public class RestAssuredApiTest {
     @Test
     @Order(1)
     void createLanguage() {
-        System.out.println("First test!");
         LanguageResponseDto dto = given()
                 .header(new Header("Content-Type", "application/json"))
                 .body(NEW_LANGUAGE_JSON)
@@ -48,7 +47,6 @@ public class RestAssuredApiTest {
     @Test
     @Order(2)
     void readLanguage() {
-        System.out.println("Second test!");
         LanguageResponseDto dto = given()
                 .header(new Header("Content-Type", "application/json"))
                 .when()
@@ -66,7 +64,6 @@ public class RestAssuredApiTest {
     @Test
     @Order(3)
     void updateLanguage() {
-        System.out.println("Third test!");
         LanguageResponseDto dto = given()
                 .header(new Header("Content-Type", "application/json"))
                 .body(NEW_LANGUAGE_JSON.replaceAll(LANGUAGE, LANGUAGE_UPDATE))
@@ -84,7 +81,6 @@ public class RestAssuredApiTest {
     @Test
     @Order(4)
     void deleteLanguage() {
-        System.out.println("Fourth test!");
         given()
                 .header(new Header("Content-Type", "application/json"))
                 .when()
