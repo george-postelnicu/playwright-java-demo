@@ -12,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+@Tag("regression")
 @Tag("rest-assured-api")
 @Tag("api-test")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

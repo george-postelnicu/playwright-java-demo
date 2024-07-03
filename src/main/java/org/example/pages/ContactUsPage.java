@@ -22,7 +22,7 @@ public class ContactUsPage extends PageBase {
         this.title = page.getByRole(AriaRole.HEADING);
     }
 
-    public void init() {
+    public void waitToLoad() {
         page.locator("//input[@name='firstname']").waitFor(elementToBeVisible());
     }
 

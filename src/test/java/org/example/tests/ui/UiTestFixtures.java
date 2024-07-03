@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static org.example.App.STATE;
+import static org.example.UiState.STATE;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UiTestFixtures {
@@ -18,7 +18,7 @@ class UiTestFixtures {
 
     @BeforeAll
     void launchBrowser() {
-        boolean isHeadlessMode = Boolean.parseBoolean(dotenv.get("HEADLESS_MODE", "true"));
+        boolean isHeadlessMode = Boolean.parseBoolean(dotenv.get("HEADLESS_MODE"));
         playwright = Playwright.create();
         browser = playwright.chromium().launch(isHeadlessMode ? headless() : slowMo());
     }
@@ -44,14 +44,31 @@ class UiTestFixtures {
 
     @BeforeEach
     void createContextAndPage() {
-        context = browser.newContext(new Browser.NewContextOptions()
-                .setViewportSize(1920, 1080)
-                .setStorageStatePath(Paths.get(STATE)));
+        context = browser.newContext(isStateful() ? withState() : withoutState());
         context.tracing().start(new Tracing.StartOptions()
                 .setScreenshots(true)
                 .setSnapshots(true)
                 .setSources(true));
         page = context.newPage();
+    }
+
+    protected boolean isStateful() {
+        return Files.exists(STATE) && Files.isRegularFile(STATE);
+    }
+
+    protected boolean isStateless() {
+        return !isStateful();
+    }
+
+    private Browser.NewContextOptions withoutState() {
+        return new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080)
+                .setBaseURL(dotenv.get("UI_BASE_URL"));
+    }
+
+    private Browser.NewContextOptions withState() {
+        return withoutState()
+                .setStorageStatePath(STATE);
     }
 
     @AfterEach

@@ -11,6 +11,7 @@ import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("regression")
 @Tag("api-test")
 @Tag("java-api")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

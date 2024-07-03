@@ -2,6 +2,7 @@ package org.example.pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
 
 public class TopNav extends PageBase {
     private final Locator language;

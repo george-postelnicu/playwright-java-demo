@@ -13,6 +13,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@Tag("regression")
 @Tag("api-test")
 @Tag("playwright-api")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

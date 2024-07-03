@@ -3,10 +3,11 @@ package org.example.tests.ui;
 import com.github.javafaker.Faker;
 import org.example.models.ContactUsForm;
 import org.example.pages.ContactUsPage;
-import org.example.pages.LucaNetHomePage;
+import org.example.pages.LucanetHomePage;
 import org.example.pages.SearchModal;
 import org.example.pages.SearchPage;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -16,26 +17,31 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LucaNetTest extends UiTestFixtures {
+@Tag("regression")
+@Tag("ui-test")
+public class LucanetTest extends UiTestFixtures {
 
-    LucaNetHomePage homePage;
+    LucanetHomePage homePage;
 
-    @BeforeAll
+    @BeforeEach
     void acceptCookies() {
-        homePage = new LucaNetHomePage(page);
+        homePage = new LucanetHomePage(page);
         homePage.navigate();
-        homePage.acceptAllCookies();
+        if (isStateless()) {
+            homePage.acceptAllCookies();
+        }
     }
 
     @Test
     void shouldSeeNavBar() {
+        homePage.waitToLoad();
         assertTrue(homePage.isTopNavVisible());
     }
 
     @Test
     void shouldNavigateToSearchPage() {
         SearchPage searchPage = homePage.search("abc");
-        searchPage.init();
+        searchPage.waitToLoad();
         assertTrue(searchPage.isSearchResultsVisible());
     }
 
@@ -58,7 +64,7 @@ public class LucaNetTest extends UiTestFixtures {
     @Test
     void shouldFindResults() {
         SearchPage searchPage = homePage.search("IFRS");
-        searchPage.init();
+        searchPage.waitToLoad();
         assertEquals("38 results", searchPage.getNumberOfResults());
         assertEquals(10, searchPage.getDisplayedResults());
     }
@@ -75,7 +81,7 @@ public class LucaNetTest extends UiTestFixtures {
     void shouldNavigateViaNavToContactUsPage() {
         homePage.navigate("About Us", "Contact Us");
         ContactUsPage contactUsPage = new ContactUsPage(page);
-        contactUsPage.init();
+        contactUsPage.waitToLoad();
         assertEquals("Contact us", contactUsPage.getH1());
     }
 
@@ -91,7 +97,7 @@ public class LucaNetTest extends UiTestFixtures {
     void shouldFillFormWithMissingNumber() {
         homePage.navigate("About Us", "Contact Us");
         ContactUsPage contactUsPage = new ContactUsPage(page);
-        contactUsPage.init();
+        contactUsPage.waitToLoad();
         contactUsPage.fill(createForm());
         contactUsPage.submit();
         assertEquals("Please complete all required fields.", contactUsPage.getFormError());

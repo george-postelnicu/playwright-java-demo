@@ -16,8 +16,8 @@ public class SearchPage extends PageBase {
         resultsPerPage = page.locator("//*[@id='kesearch_results']//a");
     }
 
-    public void init() {
-        page.locator("//div[contains(@class, 'tx-kesearch-pi1')]//*[@id='form_kesearch_pi1']").waitFor(elementToBeVisible());
+    public void waitToLoad() {
+        this.self.waitFor(elementToBeVisible());
     }
 
     public boolean isSearchResultsVisible() {
@@ -25,10 +25,10 @@ public class SearchPage extends PageBase {
     }
 
     public String getNumberOfResults() {
-        return page.locator("//*[@id='kesearch_num_results']").textContent().trim();
+        return this.results.textContent().trim();
     }
 
     public int getDisplayedResults() {
-        return page.locator("//*[@id='kesearch_results']//a").count();
+        return this.resultsPerPage.count();
     }
 }
