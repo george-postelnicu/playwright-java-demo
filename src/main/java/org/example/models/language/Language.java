@@ -1,10 +1,10 @@
 package org.example.models.language;
 
-public class LanguageDto {
+public class Language {
 
     private String name;
 
-    public LanguageDto(String name) {
+    public Language(String name) {
         this.name = name;
     }
 

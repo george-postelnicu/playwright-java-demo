@@ -1,15 +1,22 @@
 package org.example.tests.api;
 
-import com.google.gson.Gson;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.options.RequestOptions;
-import org.example.models.language.LanguageResponseDto;
+import org.example.models.ErrorResponse;
+import org.example.models.language.LanguageResponse;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class PlaywrightApiTest extends PlaywrightApiFixtures {
+@Tag("api-test")
+@Tag("playwright-api")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class PlaywrightApiTest extends PlaywrightApiFixture {
     private static final String LANGUAGE = "Russian";
     private static final String LANGUAGE_UPDATE = "Austrian";
     private static final String NEW_LANGUAGE_JSON = STR."""
@@ -17,47 +24,59 @@ public class PlaywrightApiTest extends PlaywrightApiFixtures {
             "name": "\{LANGUAGE}"
             }
             """;
-    private static long id;
 
     @Test
     @Order(1)
     void createLanguage() {
-        System.out.println("1 test!");
-        APIResponse apiResponse = request.post("/languages",
+        APIResponse apiResponse = request.post("./languages",
                 RequestOptions.create().setData(NEW_LANGUAGE_JSON));
         assertEquals(201, apiResponse.status());
-        saveId(apiResponse);
+        assertThat(apiResponse).isOK();
+        LanguageResponse dto = transform(apiResponse.text());
+        assertEquals(LANGUAGE, dto.getName());
+        saveId(dto);
     }
 
     @Test
     @Order(2)
-    void readLanguage() {
-        System.out.println("2 test!");
-        APIResponse apiResponse = request.get(STR."/languages/\{id}");
+    void shouldReadLanguage() {
+        APIResponse apiResponse = request.get(STR."./languages/\{id}");
         assertEquals(200, apiResponse.status());
-        saveId(apiResponse);
+        LanguageResponse dto = transform(apiResponse.text());
+        assertEquals(LANGUAGE, dto.getName());
+        assertEquals(id, dto.getId());
+        saveId(dto);
     }
 
     @Test
     @Order(3)
     void updateLanguage() {
-        System.out.println("3 test!");
-        APIResponse apiResponse = request.put(STR."/languages/\{id}",
+        APIResponse apiResponse = request.put(STR."./languages/\{id}",
                 RequestOptions.create().setData(NEW_LANGUAGE_JSON.replaceAll(LANGUAGE, LANGUAGE_UPDATE)));
         assertEquals(200, apiResponse.status());
-        saveId(apiResponse);
+        LanguageResponse dto = transform(apiResponse.text());
+        assertEquals(LANGUAGE_UPDATE, dto.getName());
+        saveId(dto);
     }
 
     @Test
     @Order(4)
-    void deleteLanguage() {
-        System.out.println("4 test!");
-        APIResponse apiResponse = request.delete(STR."/languages/\{id}");
+    void shouldDeleteLanguage() {
+        APIResponse apiResponse = request.delete(STR."./languages/\{id}");
         assertEquals(204, apiResponse.status());
+        assertThat(apiResponse).isOK();
     }
 
-    private static void saveId(APIResponse apiResponse) {
-        LanguageResponseDto dto = new Gson().fromJson(apiResponse.text(), LanguageResponseDto.class);
-        id = dto.getId();
+    @Test
+    @Order(5)
+    void whenIdIsNotFound_shouldGet404() {
+        APIResponse apiResponse = request.get(STR."./languages/\{id}");
+        assertEquals(404, apiResponse.status());
+        assertThat(apiResponse).not().isOK();
+        ErrorResponse response = convert(apiResponse.text());
+        assertEquals("Bad Request", response.getTitle());
+        assertEquals(STR."Cannot find [language] with [\{id}]", response.getDetail());
+        assertEquals("NOT_FOUND", response.getStatus());
     }
+
 }

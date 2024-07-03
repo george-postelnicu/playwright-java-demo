@@ -1,10 +1,10 @@
 package org.example.models.language;
 
 
-public class LanguageResponseDto extends LanguageDto {
+public class LanguageResponse extends Language {
     private Long id;
 
-    public LanguageResponseDto(String name, Long id) {
+    public LanguageResponse(String name, Long id) {
         super(name);
         this.id = id;
     }

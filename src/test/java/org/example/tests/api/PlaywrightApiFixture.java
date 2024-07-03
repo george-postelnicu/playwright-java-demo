@@ -9,24 +9,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PlaywrightApiFixtures {
-//    private static final String API_TOKEN = System.getenv("GITHUB_API_TOKEN");
+public class PlaywrightApiFixture extends LanguageTestBase {
 
-    protected Playwright playwright;
+    private Playwright playwright;
     protected APIRequestContext request;
 
-    void createPlaywright() {
+    private void createPlaywright() {
         playwright = Playwright.create();
     }
 
-    void createAPIRequestContext() {
+    private void createAPIRequestContext() {
         Map<String, String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-        headers.put("Content-Type", "application/json");
+        headers.put(ACCEPT, APPLICATION_JSON);
+        headers.put(CONTENT_TYPE, APPLICATION_JSON_CHARSET_UTF_8);
 
         request = playwright.request().newContext(new APIRequest.NewContextOptions()
-                .setBaseURL("http://localhost:8080")
+                .setBaseURL(STR."\{BASE_URL}/")
                 .setExtraHTTPHeaders(headers));
     }
 
@@ -36,14 +34,14 @@ public class PlaywrightApiFixtures {
         createAPIRequestContext();
     }
 
-    void disposeAPIRequestContext() {
+    private void disposeAPIRequestContext() {
         if (request != null) {
             request.dispose();
             request = null;
         }
     }
 
-    void closePlaywright() {
+    private void closePlaywright() {
         if (playwright != null) {
             playwright.close();
             playwright = null;

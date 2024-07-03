@@ -10,10 +10,8 @@ import java.nio.file.Paths;
 
 import static org.example.App.STATE;
 
-// Subclasses will inherit PER_CLASS behavior.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UiTestFixtures {
-    // Shared between all tests in the class.
     Playwright playwright;
     Browser browser;
     Dotenv dotenv = Dotenv.load();
@@ -41,7 +39,6 @@ class UiTestFixtures {
         playwright.close();
     }
 
-    // New instance for each test method.
     BrowserContext context;
     Page page;
 

@@ -1,10 +1,8 @@
 package org.example.tests.api;
 
-import org.example.models.language.LanguageResponseDto;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.example.models.ErrorResponse;
+import org.example.models.language.LanguageResponse;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,8 +11,10 @@ import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Tag("api-test")
+@Tag("java-api")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
+public class JavaHttpClientApiTest extends JavaHttpClientFixture {
 
     private static final String LANGUAGE = "Indonesian";
     private static final String LANGUAGE_UPDATE = "Suomi";
@@ -23,7 +23,6 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
             "name": "\{LANGUAGE}"
             }
             """;
-    private static long id;
 
 
     @Test
@@ -31,21 +30,20 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
     void shouldCreateLanguage() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = create(NEW_LANGUAGE_JSON);
         HttpResponse<String> send = send(httpRequest);
-        LanguageResponseDto dto = transform(send);
+        LanguageResponse dto = transform(send.body());
         assertEquals(201, send.statusCode());
         assertEquals(LANGUAGE, dto.getName());
-        id = dto.getId();
+        saveId(dto);
     }
 
     @Test
     @Order(2)
     void shouldReadLanguage() throws URISyntaxException, IOException, InterruptedException {
-        HttpRequest httpRequest = read(id);
-        HttpResponse<String> send = send(httpRequest);
-        LanguageResponseDto dto = transform(send);
+        HttpResponse<String> send = send(read(id));
+        LanguageResponse dto = transform(send.body());
         assertEquals(200, send.statusCode());
         assertEquals(LANGUAGE, dto.getName());
-        id = dto.getId();
+        saveId(dto);
     }
 
     @Test
@@ -53,17 +51,16 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
     void shouldUpdateLanguage() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = update(NEW_LANGUAGE_JSON.replaceAll(LANGUAGE, LANGUAGE_UPDATE), id);
         HttpResponse<String> send = send(httpRequest);
-        LanguageResponseDto dto = transform(send);
+        LanguageResponse dto = transform(send.body());
         assertEquals(200, send.statusCode());
         assertEquals(LANGUAGE_UPDATE, dto.getName());
-        id = dto.getId();
+        saveId(dto);
     }
 
     @Test
     @Order(4)
     void shouldDeleteLanguage() throws URISyntaxException, IOException, InterruptedException {
-        HttpRequest httpRequest = delete(id);
-        HttpResponse<String> send = send(httpRequest);
+        HttpResponse<String> send = send(delete(id));
         assertEquals(204, send.statusCode());
     }
 
@@ -71,7 +68,10 @@ public class JavaHttpClientApiTest extends JavaHttpClientFixtures {
     @Order(5)
     void whenIdIsNotFound_shouldGet404() throws URISyntaxException, IOException, InterruptedException {
         HttpResponse<String> send = send(read(id));
-        System.out.println(send.body());
         assertEquals(404, send.statusCode());
+        ErrorResponse response = convert(send.body());
+        assertEquals("Bad Request", response.getTitle());
+        assertEquals(STR."Cannot find [language] with [\{id}]", response.getDetail());
+        assertEquals("NOT_FOUND", response.getStatus());
     }
 }
